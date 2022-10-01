@@ -6,11 +6,8 @@
 //
 
 import UIKit
-import CoreData
 
 class TaskListViewController: UITableViewController {
-    
-    private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     private let cellID = "task"
     private var taskList: [Task] = []
@@ -60,18 +57,12 @@ class TaskListViewController: UITableViewController {
     }
     
     @objc private func addNewTask() {
-        let newTaskVC = TaskViewController()
-        newTaskVC.modalPresentationStyle = .fullScreen
-        present(newTaskVC, animated: true)
+        addTaskAlert(with: "New Task", and: "What do you want to do?")
     }
     
     private func fetchData() {
-        let fetchRequest = Task.fetchRequest()
-        
-        do {
-            taskList = try context.fetch(fetchRequest)
-        } catch {
-            print("Failed to fetch data", error)
+        StorageManager.shared.fetchData { taskList in
+            self.taskList = taskList
         }
     }
 }
@@ -89,4 +80,86 @@ extension TaskListViewController {
         cell.contentConfiguration = content
         return cell
     }
+    
+    override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { _,_,_ in
+            self.delete(indexPath: indexPath)
+        }
+        
+        deleteAction.backgroundColor = UIColor(red: 240/255,
+                                               green: 83/255,
+                                               blue: 101/255,
+                                               alpha: 194/255)
+        
+        
+        
+        let swipeActions = UISwipeActionsConfiguration(actions: [deleteAction])
+        
+        return swipeActions
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        renameAlert(with: taskList[indexPath.row].name ?? "", and: "Change task", with: indexPath)
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
 }
+
+extension TaskListViewController {
+    private func addTaskAlert(with title: String, and messege: String) {
+        let alert = UIAlertController(title: title, message: messege, preferredStyle: .alert)
+        
+        let saveAction = UIAlertAction(title: "Save", style: .default) { _ in
+            guard let task = alert.textFields?.first?.text, !task.isEmpty else { return }
+            self.save(task)
+        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
+        alert.addAction(saveAction)
+        alert.addAction(cancelAction)
+        alert.addTextField { textField in
+            textField.placeholder = "New Task"
+        }
+        
+        present(alert, animated: true)
+    }
+    
+    private func save(_ taskName: String) {
+        StorageManager.shared.save(taskName) { task in
+            self.taskList.append(task)
+        }
+        
+        let cellIndex = IndexPath(row: taskList.count - 1, section: 0)
+        tableView.insertRows(at: [cellIndex], with: .automatic)
+    }
+    
+    private func delete(indexPath: IndexPath) {
+        StorageManager.shared.delete(taskList: taskList, indexPath: indexPath)
+        
+        taskList.remove(at: indexPath.row)
+        
+        tableView.deleteRows(at: [indexPath], with: .automatic)
+    }
+    
+    private func renameAlert(with title: String, and messege: String, with indexPath: IndexPath) {
+        let alert = UIAlertController(title: title, message: messege, preferredStyle: .alert)
+        
+        let saveAction = UIAlertAction(title: "Save", style: .default) { _ in
+            guard let task = alert.textFields?.first?.text, !task.isEmpty else { return }
+            self.rename(task, indexPath: indexPath)
+        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
+        alert.addAction(saveAction)
+        alert.addAction(cancelAction)
+        alert.addTextField { textField in
+            textField.placeholder = "Change"
+        }
+        
+        present(alert, animated: true)
+    }
+    
+    private func rename(_ taskName: String, indexPath: IndexPath) {
+        StorageManager.shared.rename(taskList: taskList, taskName, indexPath: indexPath)
+    
+        tableView.reloadData()
+    }
+}
+

@@ -10,7 +10,7 @@ import CoreData
 
 class TaskViewController: UIViewController {
     
-    private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+  //  private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 
     
     private lazy var taskTextField: UITextField = {
@@ -27,7 +27,7 @@ class TaskViewController: UIViewController {
             with: "Save Task",
             and: UIColor(red: 21/255, green: 101/255, blue: 192/255, alpha: 1),
             action:  UIAction { _ in
-                self.save()
+              //  self.save() 
             }
         )
     }()
@@ -94,7 +94,8 @@ class TaskViewController: UIViewController {
             cancelButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
         ])
     }
-    
+ 
+    /*
     private func save() {
 //        guard let entityDescription = NSEntityDescription.entity(forEntityName: "Task", in: context) else { return }
 //        guard let task = NSManagedObject(entity: entityDescription, insertInto: context) as? Task else { return }
@@ -112,5 +113,5 @@ class TaskViewController: UIViewController {
         }
         dismiss(animated: true)
     }
-    
+    */
 }
