@@ -42,7 +42,6 @@ class StorageManager {
         }
     }
     
-    
     func fetchData(competion: @escaping([Task]) -> Void ) {
         let fetchRequest = Task.fetchRequest()
         
