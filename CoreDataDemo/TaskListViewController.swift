@@ -18,14 +18,11 @@ class TaskListViewController: UITableViewController {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellID)
         
         setupNavigationBar()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+        
         fetchData()
         tableView.reloadData()
     }
-
+    
     private func setupNavigationBar() {
         title = "Task List"
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -91,8 +88,6 @@ extension TaskListViewController {
                                                blue: 101/255,
                                                alpha: 194/255)
         
-        
-        
         let swipeActions = UISwipeActionsConfiguration(actions: [deleteAction])
         
         return swipeActions
@@ -122,23 +117,6 @@ extension TaskListViewController {
         present(alert, animated: true)
     }
     
-    private func save(_ taskName: String) {
-        StorageManager.shared.save(taskName) { task in
-            self.taskList.append(task)
-        }
-        
-        let cellIndex = IndexPath(row: taskList.count - 1, section: 0)
-        tableView.insertRows(at: [cellIndex], with: .automatic)
-    }
-    
-    private func delete(indexPath: IndexPath) {
-        StorageManager.shared.delete(taskList: taskList, indexPath: indexPath)
-        
-        taskList.remove(at: indexPath.row)
-        
-        tableView.deleteRows(at: [indexPath], with: .automatic)
-    }
-    
     private func renameAlert(with title: String, and messege: String, with indexPath: IndexPath) {
         let alert = UIAlertController(title: title, message: messege, preferredStyle: .alert)
         
@@ -154,6 +132,23 @@ extension TaskListViewController {
         }
         
         present(alert, animated: true)
+    }
+    
+    private func save(_ taskName: String) {
+        StorageManager.shared.save(taskName) { task in
+            self.taskList.append(task)
+        }
+        
+        let cellIndex = IndexPath(row: taskList.count - 1, section: 0)
+        tableView.insertRows(at: [cellIndex], with: .automatic)
+    }
+    
+    private func delete(indexPath: IndexPath) {
+        StorageManager.shared.delete(taskList: taskList, indexPath: indexPath)
+        
+        taskList.remove(at: indexPath.row)
+        
+        tableView.deleteRows(at: [indexPath], with: .automatic)
     }
     
     private func rename(_ taskName: String, indexPath: IndexPath) {

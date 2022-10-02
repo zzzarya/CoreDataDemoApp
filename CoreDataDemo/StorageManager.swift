@@ -13,22 +13,22 @@ class StorageManager {
     
     let context: NSManagedObjectContext
     
-    private init() {
-        context = persistentContainer.viewContext
-    }
-    
     var persistentContainer: NSPersistentContainer = {
-
+        
         let container = NSPersistentContainer(name: "CoreDataDemo")
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
-            
+                
                 fatalError("Unresolved error \(error), \(error.userInfo)")
             }
         })
         return container
     }()
-
+    
+    private init() {
+        context = persistentContainer.viewContext
+    }
+    
     func saveContext () {
         let context = persistentContainer.viewContext
         if context.hasChanges {
@@ -42,7 +42,7 @@ class StorageManager {
         }
     }
     
-    func fetchData(competion: @escaping([Task]) -> Void ) {
+    func fetchData(competion: ([Task]) -> Void ) {
         let fetchRequest = Task.fetchRequest()
         
         do {
@@ -53,7 +53,7 @@ class StorageManager {
         }
     }
     
-    func save(_ taskName: String, competion: @escaping(Task) -> Void) {
+    func save(_ taskName: String, competion: (Task) -> Void) {
         let task = Task(context: context)
         task.name = taskName
         competion(task)
